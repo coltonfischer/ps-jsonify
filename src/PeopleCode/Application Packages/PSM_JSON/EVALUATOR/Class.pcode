@@ -1,0 +1,32 @@
+import PSM_JSON:TYPE:*;
+
+class Class
+   method Class(&poValue As object, &pjnJson As JsonNode);
+   method CreateNode();
+private
+   instance object &moValue;
+   instance JsonNode &mjnJson;
+end-class;
+
+
+method Class
+   /+ &poValue as Object, +/
+   /+ &pjnJson as JsonNode +/
+   &moValue = &poValue;
+   &mjnJson = &pjnJson;
+end-method;
+
+
+method CreateNode
+   
+   Local any &jnJson;
+   
+   Evaluate Upper(String(&moValue))
+      rem When "ADD_EXAMPLE:Here"
+      Return (create PSM_JSON:TYPE:Example(&moValue, &mjnJson));
+   When-Other
+      &jnJson = create PSM_JSON:TYPE:Class(&moValue, &mjnJson);
+      Return;
+   End-Evaluate;
+   
+end-method;

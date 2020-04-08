@@ -1,0 +1,178 @@
+import %metadata:Key;
+import %metadata:PeopleCodeProgram:PeopleCodeProgram_Manager;
+import %metadata:PeopleCodeProgram:PeopleCodeProgram;
+import PSM_JSON:Object;
+import PSM_JSON:EVALUATOR:Object;
+
+class Class
+   method Class(&poValue As object, &pjnJson As JsonNode);
+private
+   instance object &moValue;
+   instance PSM_JSON:Object &mjoJson;
+   instance JsonNode &mjnJson;
+   method Process();
+   
+   method Introspect(&psClassPath As string);
+   method GetPeopleCodeProgram(&pasProgramKeys As array of string) Returns %metadata:PeopleCodeProgram:PeopleCodeProgram;
+   method GetClassDeclaration(&psClassName As string, &psPeopleCodeProgram As string) Returns string;
+   method AddProperties(&pasClassMemberDeclarations As array of string);
+   method AddProperty(&psPropertyDeclaration As string);
+   
+end-class;
+
+Declare Function FUNCStripComments PeopleCode FUNCLIB_PTIA.PTIA_UPG_PATH FieldFormula;
+
+method Class
+   /+ &poValue as Object, +/
+   /+ &pjnJson as JsonNode +/
+   
+   &mjnJson = &pjnJson;
+   
+   Local JsonObject &joJson = &mjnJson.GetJsonObject();
+   
+   If &joJson = Null Then
+      &joJson = CreateJsonObject();
+      &mjnJson.SetJsonObject(&joJson);
+   End-If;
+   
+   &mjoJson = create PSM_JSON:Object();
+   &mjoJson.Value = &joJson;
+   &moValue = &poValue;
+   
+   %This.Process();
+   
+end-method;
+
+
+method Process
+   
+   %This.Introspect(String(&moValue));
+   
+end-method;
+
+
+method Introspect
+   /+ &psClassPath as String +/
+   
+   Local array of string &asProgramKeys = Split(&psClassPath, ":");
+   
+   Local %metadata:PeopleCodeProgram:PeopleCodeProgram &oPcProg = %This.GetPeopleCodeProgram(&asProgramKeys);
+   
+   If &oPcProg = Null Or
+         Not &oPcProg.Validate() Then
+      /* Invalid class name or a class is extending a native object type */
+      
+      Local PSM_JSON:EVALUATOR:Object &oObjectEval = create PSM_JSON:EVALUATOR:Object(&moValue, &mjnJson);
+      &oObjectEval.CreateNodeForType(&psClassPath);
+      
+      Return;
+      
+   End-If;
+   
+   /* I tried making use of %IntBroker.GetAppClassProperties, but found it to be too inconsistent. */
+   /* So instead I manually parse the App Class PeopleCode to get the properties */
+   Local string &sPeopleCodeProgram = FUNCStripComments(&oPcProg.GetProgram());
+   
+   Local string &sClassDeclaration = %This.GetClassDeclaration(&asProgramKeys [&asProgramKeys.Len], &sPeopleCodeProgram);
+   
+   %This.AddProperties(Split(&sClassDeclaration, Char(10)));
+   
+   If &oPcProg.ExtendsClass = "" Then
+      Return;
+   End-If;
+   
+   %This.Introspect(&oPcProg.ExtendsClass);
+   
+end-method;
+
+
+method GetPeopleCodeProgram
+   /+ &pasProgramKeys as Array of String +/
+   /+ Returns %Metadata:PeopleCodeProgram:PeopleCodeProgram +/
+   
+   Local integer &i;
+   Local %metadata:Key &oKey = create %metadata:Key();
+   
+   For &i = 1 To &pasProgramKeys.Len - 1
+      &oKey.AddItem(103 + &i, &pasProgramKeys [&i]);
+   End-For;
+   
+   &oKey.AddItem(107, &pasProgramKeys [&pasProgramKeys.Len]);
+   &oKey.AddItem(12, "OnExecute");
+   
+   Local %metadata:PeopleCodeProgram:PeopleCodeProgram_Manager &oPcMan = create %metadata:PeopleCodeProgram:PeopleCodeProgram_Manager();
+   Return &oPcMan.GetDefn(&oKey);
+   
+end-method;
+
+
+method GetClassDeclaration
+   /+ &psClassName as String, +/
+   /+ &psPeopleCodeProgram as String +/
+   /+ Returns String +/
+   
+   Local integer &iStartPos = Find(Char(10) | "CLASS " | Upper(&psClassName), Upper(&psPeopleCodeProgram), 1);
+   
+   Return Substring(&psPeopleCodeProgram, &iStartPos, Find("END-CLASS;", Upper(&psPeopleCodeProgram), &iStartPos) - &iStartPos + 10);
+   
+end-method;
+
+
+method AddProperties
+   /+ &pasClassMemberDeclarations as Array of String +/
+   
+   Local integer &j;
+   For &j = 1 To &pasClassMemberDeclarations.Len
+      
+      Local string &sLine = LTrim(&pasClassMemberDeclarations [&j]);
+      
+      If Find("PROPERTY ", Upper(&sLine)) = 1 Then
+         %This.AddProperty(&sLine);
+         Continue;
+         
+      End-If;
+      
+      If Find("METHOD ", Upper(&sLine)) = 1 Then
+         Continue;
+      End-If;
+      
+      If Find("PRIVATE ", Upper(&sLine)) = 1 Or
+            Find("END-CLASS", Upper(&sLine)) = 1 Or
+            Find("PROTECTED", Upper(&sLine)) = 1 Then
+         Break;
+      End-If;
+      
+   End-For;
+   
+end-method;
+
+
+method AddProperty
+   /+ &psPropertyDeclaration as String +/
+   
+   Local string &sName;
+   Local boolean &bIsReadOnly;
+   Local integer &iArrayDimension = 0;
+   
+   Local array of string &asPropertyVals = Split(&psPropertyDeclaration, " ");
+   
+   Local integer &i = 2;
+   While Upper(&asPropertyVals [&i]) = "ARRAY"
+      &iArrayDimension = &iArrayDimension + 1;
+      &i = &i + 2;
+   End-While;
+   
+   Local integer &j = 3 + 2 * &iArrayDimension;
+   
+   &sName = RTrim(&asPropertyVals [&j], ";");
+   &bIsReadOnly = (&asPropertyVals.Len = &j + 1);
+   
+   If &mjoJson.Has(&sName) Then
+      Return;
+   End-If;
+   
+   Local any &oProperty = ObjectGetProperty(&moValue, &sName);
+   
+   &mjoJson.AddProperty(&sName, &oProperty);
+   
+end-method;

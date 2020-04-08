@@ -1,0 +1,80 @@
+import PSM_JSON:TYPE:*;
+import PSM_JSON:EVALUATOR:Class;
+
+class Object
+   method Object(&poValue As object, &pjnJson As JsonNode);
+   method CreateNode();
+   method CreateNodeForType(&psType As string);
+private
+   instance object &moValue;
+   instance JsonNode &mjnJson;
+   instance Hash &mhMappings;
+   method IsClass(&psType As string) Returns boolean;
+end-class;
+
+
+method Object
+   /+ &poValue as Object, +/
+   /+ &pjnJson as JsonNode +/
+   &moValue = &poValue;
+   &mjnJson = &pjnJson;
+end-method;
+
+
+method CreateNode
+   
+   %This.CreateNodeForType(String(&moValue));
+   
+end-method;
+
+
+method CreateNodeForType
+   /+ &psType as String +/
+   
+   If %This.IsClass(&psType) Then
+      
+      Local PSM_JSON:EVALUATOR:Class &oClassEval = create PSM_JSON:EVALUATOR:Class(&moValue, &mjnJson);
+      &oClassEval.CreateNode();
+      
+      Return;
+      
+   End-If;
+   
+   Local any &o;
+   
+   Evaluate Upper(&psType)
+   When "ARRAY"
+      &o = create PSM_JSON:TYPE:Array(&moValue, &mjnJson);
+      Return;
+   When "RECORD"
+      &o = create PSM_JSON:TYPE:Record(&moValue, &mjnJson);
+      Return;
+   When "REQUEST"
+      &o = create PSM_JSON:TYPE:Request(&moValue, &mjnJson);
+      Return;
+   When "RESPONSE"
+      &o = create PSM_JSON:TYPE:Response(&moValue, &mjnJson);
+      Return;
+   When "HASH"
+      &o = create PSM_JSON:TYPE:Hash(&moValue, &mjnJson);
+      Return;
+   When "EXCEPTION"
+      &o = create PSM_JSON:TYPE:Exception(&moValue, &mjnJson);
+      Return;
+   When "NULL"
+      &mjnJson.SetNull();
+      Return;
+   When-Other
+      &mjnJson.SetNull(); /* ? */
+   End-Evaluate;
+   
+end-method;
+
+
+method IsClass
+   /+ &psType as String +/
+   /+ Returns Boolean +/
+   
+   Return (Find(":", &psType) > 0);
+   
+end-method;

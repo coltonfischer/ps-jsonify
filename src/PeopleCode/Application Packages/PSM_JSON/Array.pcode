@@ -1,0 +1,62 @@
+import PSM_JSON:Node;
+import PSM_JSON:TYPE:*;
+
+class Array
+   property JsonArray Value;
+   method Array();
+   method AddElement(&paValue As any);
+   method AddString(&paValue As string);
+   method AddJsonObject(&paValue As JsonObject);
+   method AddRow(&paValue As Row);
+end-class;
+
+method Array
+   %This.Value = CreateJsonArray();
+end-method;
+
+
+method AddElement
+   /+ &paValue as Any +/
+   
+   Local PSM_JSON:Node &oAny = create PSM_JSON:Node(&paValue);
+   
+   If &oAny.IsJsonObject() Then
+      %This.Value.AddJsonObjectElement("", &oAny.Value);
+      Return;
+   End-If;
+   
+   If &oAny.IsJsonArray() Then
+      %This.Value.AddJsonArrayElement("", &oAny.Value);
+      Return;
+   End-If;
+   
+   If &oAny.IsNull() Then
+      %This.Value.AddNullElement();
+      Return;
+   End-If;
+   
+   %This.Value.AddElement(&oAny.Value);
+   
+end-method;
+
+
+method AddString
+   /+ &paValue as String +/
+   %This.Value.AddElement(EscapeJavascriptString(&paValue));
+end-method;
+
+
+method AddJsonObject
+   /+ &paValue as JsonObject +/
+   %This.Value.AddJsonObjectElement("", &paValue);
+end-method;
+
+
+method AddRow
+   /+ &paValue as Row +/
+   
+   Local JsonNode &jnJson = CreateJsonNode();
+   Local PSM_JSON:TYPE:Row &oType = create PSM_JSON:TYPE:Row(&paValue, &jnJson);
+   %This.AddJsonObject(&jnJson.GetJsonObject());
+   
+end-method;

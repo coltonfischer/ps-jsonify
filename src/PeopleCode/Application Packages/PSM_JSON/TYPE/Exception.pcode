@@ -1,0 +1,62 @@
+import PSM_JSON:Object;
+
+class Exception
+   method Exception(&poValue As Exception, &pjnJson As JsonNode);
+private
+   method Process();
+   method GetSeverityDescr() Returns string;
+   instance Exception &moValue;
+   instance PSM_JSON:Object &mjoJson;
+end-class;
+
+method Exception
+   /+ &poValue as Exception, +/
+   /+ &pjnJson as JsonNode +/
+   
+   Local JsonObject &joJson = &pjnJson.GetJsonObject();
+   
+   If &joJson = Null Then
+      &joJson = CreateJsonObject();
+      &pjnJson.SetJsonObject(&joJson);
+   End-If;
+   
+   &mjoJson = create PSM_JSON:Object();
+   &mjoJson.Value = &joJson;
+   &moValue = &poValue;
+   
+   %This.Process();
+   
+end-method;
+
+
+method Process
+   
+   &mjoJson.AddString("Context", &moValue.Context);
+   &mjoJson.AddString("DefaultText", &moValue.DefaultText);
+   &mjoJson.AddNumber("MessageNumber", &moValue.MessageNumber);
+   &mjoJson.AddNumber("MessageSetNumber", &moValue.MessageSetNumber);
+   &mjoJson.AddString("MessageSeverity", %This.GetSeverityDescr());
+   &mjoJson.AddString("StackTrace", &moValue.StackTrace);
+   &mjoJson.AddNumber("SubstitutionCount", &moValue.SubstitutionCount);
+   &mjoJson.AddString("Text", &moValue.ToString( False));
+   
+end-method;
+
+
+method GetSeverityDescr
+   /+ Returns String +/
+   
+   Evaluate &moValue.MessageSeverity
+   When %MsgSeverity_Cancel
+      Return "Cancel";
+   When %MsgSeverity_Error
+      Return "Error";
+   When %MsgSeverity_Message
+      Return "Message";
+   When %MsgSeverity_Warning
+      Return "Warning";
+   When-Other
+      Return &moValue.MessageSeverity;
+   End-Evaluate;
+   
+end-method;

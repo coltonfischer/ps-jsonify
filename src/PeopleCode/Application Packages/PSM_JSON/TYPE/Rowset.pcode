@@ -1,0 +1,40 @@
+import PSM_JSON:Array;
+import PSM_JSON:Object;
+
+class Rowset
+   method Rowset(&poValue As any, &pjnJson As JsonNode);
+private
+   method Process();
+   instance Rowset &moValue;
+   instance PSM_JSON:Array &mjaJson;
+end-class;
+
+method Rowset
+   /+ &poValue as Any, +/
+   /+ &pjnJson as JsonNode +/
+   
+   Local JsonArray &jaJson = &pjnJson.GetJsonArray();
+   
+   If &jaJson = Null Then
+      &jaJson = CreateJsonArray();
+      &pjnJson.SetJsonArray(&jaJson);
+   End-If;
+   
+   &mjaJson = create PSM_JSON:Array();
+   &mjaJson.Value = &jaJson;
+   &moValue = &poValue;
+   
+   %This.Process();
+   
+end-method;
+
+
+method Process
+   
+   Local integer &i;
+   
+   For &i = 1 To &moValue.RowCount
+      &mjaJson.AddRow(&moValue(&i));
+   End-For;
+   
+end-method;

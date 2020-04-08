@@ -1,0 +1,80 @@
+import PSM_JSON:EVALUATOR:Object;
+import PSM_JSON:EVALUATOR:Class;
+
+class Node extends JsonNode
+   method Node(&paValue As any);
+   property any Value;
+private
+   method IsValue() Returns boolean;
+   method IsBoolean() Returns boolean;
+   method CleanValue();
+end-class;
+
+
+method Node
+   /+ &paValue as Any +/
+   
+   %Super = CreateJsonNode();
+   
+   &Value = &paValue;
+   
+   If %This.IsValue() Then
+      
+      %This.CleanValue();
+      
+      Return;
+      
+   End-If;
+   
+   Local PSM_JSON:EVALUATOR:Object &oObjectEval = create PSM_JSON:EVALUATOR:Object(&Value, %This);
+   &oObjectEval.CreateNode();
+   
+   If %This.IsJsonObject() Then
+      &Value = %This.GetJsonObject();
+   End-If;
+   
+   If %This.IsJsonArray() Then
+      &Value = %This.GetJsonArray();
+   End-If;
+   
+end-method;
+
+
+method IsValue
+   /+ Returns Boolean +/
+   
+   try
+      Return (&Value = String(&Value));
+   catch Exception &e
+   end-try;
+   
+   Return False;
+   
+end-method;
+
+
+method CleanValue
+   
+   /* Escape the value if it is not a number or boolean */
+   If ( Not IsNumber(&Value) And
+         Not %This.IsBoolean()) Then
+      
+      %This.Value = EscapeJavascriptString(&Value);
+      
+   End-If;
+   
+end-method;
+
+
+method IsBoolean
+   /+ Returns Boolean +/
+   
+   try
+      Return (&Value = True Or
+         &Value = False);
+   catch Exception &e
+   end-try;
+   
+   Return False;
+   
+end-method;

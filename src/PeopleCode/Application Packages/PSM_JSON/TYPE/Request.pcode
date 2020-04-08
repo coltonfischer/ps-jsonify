@@ -1,0 +1,100 @@
+import PSM_JSON:Object;
+import PSM_JSON:Array;
+
+class Request
+   method Request(&poValue As Request, &pjnJson As JsonNode);
+private
+   method Process();
+   method AddCookies();
+   method AddHeaders();
+   method AddParameters();
+   instance Request &moValue;
+   instance PSM_JSON:Object &mjoJson;
+end-class;
+
+method Request
+   /+ &poValue as Request, +/
+   /+ &pjnJson as JsonNode +/
+   
+   Local JsonObject &joJson = &pjnJson.GetJsonObject();
+   
+   If &joJson = Null Then
+      &joJson = CreateJsonObject();
+      &pjnJson.SetJsonObject(&joJson);
+   End-If;
+   
+   &mjoJson = create PSM_JSON:Object();
+   &mjoJson.Value = &joJson;
+   &moValue = &poValue;
+   
+   %This.Process();
+   
+end-method;
+
+
+method Process
+   
+   &mjoJson.AddString("CharSet", &moValue.CharSet);
+   &mjoJson.AddString("ContentBody", &moValue.GetContentBody());
+   &mjoJson.AddString("ContentURI", &moValue.ContentURI);
+   /* @todo add more properties */
+   
+   %This.AddCookies();
+   %This.AddHeaders();
+   %This.AddParameters();
+   
+end-method;
+
+
+method AddCookies
+   
+   Local PSM_JSON:Array &jaJson = create PSM_JSON:Array();
+   
+   Local array of string &asCookies = &moValue.GetCookieNames();
+   
+   Local integer &i;
+   For &i = 1 To &asCookies.Len
+      Local PSM_JSON:Object &joJson = create PSM_JSON:Object();
+      &joJson.AddString(&asCookies [&i], &moValue.GetCookieValue(&asCookies [&i]));
+      &jaJson.AddJsonObject(&joJson.Value);
+   End-For;
+   
+   &mjoJson.AddJsonArray("Cookies", &jaJson.Value);
+   
+end-method;
+
+
+method AddHeaders
+   
+   Local PSM_JSON:Array &jaJson = create PSM_JSON:Array();
+   
+   Local array of string &asHeaders = &moValue.GetHeaderNames();
+   
+   Local integer &i;
+   For &i = 1 To &asHeaders.Len
+      Local PSM_JSON:Object &joJson = create PSM_JSON:Object();
+      &joJson.AddString(&asHeaders [&i], &moValue.GetHeader(&asHeaders [&i]));
+      &jaJson.AddJsonObject(&joJson.Value);
+   End-For;
+   
+   &mjoJson.AddJsonArray("Headers", &jaJson.Value);
+   
+end-method;
+
+
+method AddParameters
+   
+   Local PSM_JSON:Array &jaJson = create PSM_JSON:Array();
+   
+   Local array of string &asParameters = &moValue.GetParameterNames();
+   
+   Local integer &i;
+   For &i = 1 To &asParameters.Len
+      Local PSM_JSON:Object &joJson = create PSM_JSON:Object();
+      &joJson.AddString(&asParameters [&i], &moValue.GetParameter(&asParameters [&i]));
+      &jaJson.AddJsonObject(&joJson.Value);
+   End-For;
+   
+   &mjoJson.AddJsonArray("Parameters", &jaJson.Value);
+   
+end-method;

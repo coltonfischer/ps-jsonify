@@ -1,0 +1,42 @@
+import PSM_JSON:Object;
+
+class Record
+   method Record(&poValue As Record, &pjnJson As JsonNode);
+private
+   method Process();
+   instance Record &moValue;
+   instance PSM_JSON:Object &mjoJson;
+end-class;
+
+method Record
+   /+ &poValue as Record, +/
+   /+ &pjnJson as JsonNode +/
+   
+   Local JsonObject &joJson = &pjnJson.GetJsonObject();
+   
+   If &joJson = Null Then
+      &joJson = CreateJsonObject();
+      &pjnJson.SetJsonObject(&joJson);
+   End-If;
+   
+   &mjoJson = create PSM_JSON:Object();
+   &mjoJson.Value = &joJson;
+   &moValue = &poValue;
+   
+   %This.Process();
+   
+end-method;
+
+
+method Process
+   
+   Local integer &i;
+   
+   For &i = 1 To &moValue.FieldCount
+      
+      Local Field &fField = &moValue.GetField(&i);
+      &mjoJson.AddProperty(&fField.Name, &fField.Value); /* change to AddField? */
+      
+   End-For;
+   
+end-method;
