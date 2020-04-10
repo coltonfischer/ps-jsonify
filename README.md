@@ -44,11 +44,11 @@ Local PSM_JSON:Object &oJson = create PSM_JSON:Object();
 The various `AddXxx` methods allow you to add PeopleCode native object types to the JSON Object.
 
 ```
-/* AddRowset and AddRequest Examples */
-Local Rowset &rsOperDefn = CreateRowset(Record.PSOPRDEFN);
-&rsOperDefn.Fill("WHERE OPRID = 'PS'");
-
-&oJson.AddRowset("MyRowset", &rsOprDefn);
+/* AddRecord and AddRequest Examples */
+Local Record &rPsOptions = CreateRecord(Record.PSOPTIONS);
+&rPsOptions.SelectByKey();
+   
+&oJson.AddRecord("MyRecord", &rPsOptions);
 &oJson.AddRequest("MyRequest", %Request);
 ```
 
@@ -76,9 +76,36 @@ Local JsonObject &joMyJsonObject = &oJson.Value;
 Use the `PSM_JSON:Array` Class to build dynamic JSON Arrays
 
 ```
-@todo Examples
+Local PSM_JSON:Array &oArray = create PSM_JSON:Array();
 ```
 
+The various `AddXxx` methods allow you to add PeopleCode native object types to the JSON Array.
+
+```
+/* Adding Array Elements Example */
+&oArray.AddString("Hello");
+&oArray.AddBoolean( True);
+&oArray.AddNumber(2);
+```
+
+Use the `AddElement` method if you are unsure of the data or object type.
+```
+/* AddElement Example */
+Local any &aAny = &oVar;
+&oArray.AddElement(&aAny);
+```
+
+Invoke the `ToString` method when you are ready to get the JSON String output. 
+
+```
+Local String &sOutput = &oArray.ToString();
+```
+
+You can always access the underlying `JsonArray` native object by referencing the `Value` property.
+
+```
+Local JsonArray &jaMyJsonArray = &oArray.Value;
+```
 ### Any to JSON String
 
 Convert an `Any` object type to a JSON String with the `PSM_JSON:Node` Class.
@@ -90,4 +117,4 @@ Local PTPP_COLLECTIONS:Shortcut &Cref;
 Local PSM_JSON:Node &jnJson = create PSM_JSON:Node(&Cref);
 %Response.Write(&jnJson.ToString());
 ```
-_Note: Not all object types are supported at this time.  `ToString()` will return `null` if you use an unsupported type._
+_Note: Not all object types are supported at this time.  `ToString()` will return the object type name as a String  if you use an unsupported type._
