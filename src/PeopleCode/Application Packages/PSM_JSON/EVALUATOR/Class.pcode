@@ -21,6 +21,7 @@ method CreateNode
    
    Local any &jnJson;
    
+   /* @todo add an example of converting a delivered class to JSON */
    Evaluate Upper(String(&moValue))
       rem When "ADD_EXAMPLE:Here"
       Return (create PSM_JSON:TYPE:Example(&moValue, &mjnJson));

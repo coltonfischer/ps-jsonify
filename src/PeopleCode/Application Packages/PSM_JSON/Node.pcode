@@ -3,11 +3,9 @@ import PSM_JSON:EVALUATOR:Class;
 
 class Node extends JsonNode
    method Node(&paValue As any);
-   property any Value;
 private
+   instance any &maValue;
    method IsValue() Returns boolean;
-   method IsBoolean() Returns boolean;
-   method CleanValue();
 end-class;
 
 
@@ -16,26 +14,25 @@ method Node
    
    %Super = CreateJsonNode();
    
-   &Value = &paValue;
+   &maValue = &paValue;
    
    If %This.IsValue() Then
       
-      %This.CleanValue();
+      Local JsonValue &jvJson = CreateJsonValue();
       
+      try
+         &jvJson.SetValue(&maValue);
+      catch Exception &e /* JsonValue.SetValue(nbr) fails */
+         &jvJson.SetNumber(&maValue);
+      end-try;
+      
+      %This.SetJsonValue(&jvJson);
       Return;
       
    End-If;
    
-   Local PSM_JSON:EVALUATOR:Object &oObjectEval = create PSM_JSON:EVALUATOR:Object(&Value, %This);
+   Local PSM_JSON:EVALUATOR:Object &oObjectEval = create PSM_JSON:EVALUATOR:Object(&maValue, %This);
    &oObjectEval.CreateNode();
-   
-   If %This.IsJsonObject() Then
-      &Value = %This.GetJsonObject();
-   End-If;
-   
-   If %This.IsJsonArray() Then
-      &Value = %This.GetJsonArray();
-   End-If;
    
 end-method;
 
@@ -44,34 +41,7 @@ method IsValue
    /+ Returns Boolean +/
    
    try
-      Return (&Value = String(&Value));
-   catch Exception &e
-   end-try;
-   
-   Return False;
-   
-end-method;
-
-
-method CleanValue
-   
-   /* Escape the value if it is not a number or boolean */
-   If ( Not IsNumber(&Value) And
-         Not %This.IsBoolean()) Then
-      
-      %This.Value = EscapeJavascriptString(&Value);
-      
-   End-If;
-   
-end-method;
-
-
-method IsBoolean
-   /+ Returns Boolean +/
-   
-   try
-      Return (&Value = True Or
-         &Value = False);
+      Return (&maValue = String(&maValue));
    catch Exception &e
    end-try;
    

@@ -9,7 +9,8 @@ private
    instance object &moValue;
    instance JsonNode &mjnJson;
    instance Hash &mhMappings;
-   method IsClass(&psType As string) Returns boolean;
+   method IsAppClass(&psType As string) Returns boolean;
+   method IsJavaClass(&psType As string) Returns boolean; /* @todo */
 end-class;
 
 
@@ -31,7 +32,7 @@ end-method;
 method CreateNodeForType
    /+ &psType as String +/
    
-   If %This.IsClass(&psType) Then
+   If %This.IsAppClass(&psType) Then
       
       Local PSM_JSON:EVALUATOR:Class &oClassEval = create PSM_JSON:EVALUATOR:Class(&moValue, &mjnJson);
       &oClassEval.CreateNode();
@@ -62,19 +63,36 @@ method CreateNodeForType
       &o = create PSM_JSON:TYPE:Exception(&moValue, &mjnJson);
       Return;
    When "NULL"
+      <*Local JsonValue &jvNull = CreateJsonValue();
+       &jvNull.SetNull();
+       &mjnJson.SetJsonValue(&jvNull);*>
       &mjnJson.SetNull();
       Return;
+   When "JSONVALUE"
+      &mjnJson.SetJsonValue(&moValue);
+      Return;
    When-Other
-      &mjnJson.SetNull(); /* ? */
+      Local JsonValue &jvUnsupportedObjectType = CreateJsonValue();
+      &jvUnsupportedObjectType.SetString(&psType);
+      &mjnJson.SetJsonValue(&jvUnsupportedObjectType);
    End-Evaluate;
    
 end-method;
 
 
-method IsClass
+method IsAppClass
    /+ &psType as String +/
    /+ Returns Boolean +/
    
    Return (Find(":", &psType) > 0);
+   
+end-method;
+
+
+method IsJavaClass
+   /+ &psType as String +/
+   /+ Returns Boolean +/
+   
+   Return (Find(".", &psType) > 0);
    
 end-method;

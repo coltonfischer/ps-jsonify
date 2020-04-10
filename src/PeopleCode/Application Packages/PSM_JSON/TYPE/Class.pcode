@@ -167,7 +167,7 @@ method AddProperty
    &sName = RTrim(&asPropertyVals [&j], ";");
    &bIsReadOnly = (&asPropertyVals.Len = &j + 1);
    
-   If &mjoJson.Has(&sName) Then
+   If &mjoJson.HasKey(&sName) Then
       Return;
    End-If;
    

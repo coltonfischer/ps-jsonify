@@ -1,69 +1,52 @@
-import PSM_JSON:Node;
+import PSM_JSON:*;
 import PSM_JSON:TYPE:*;
+import PSM_JSON:EVALUATOR:*;
 
 class Object
    property JsonObject Value;
    
    method Object();
-   method AddProperty(&psName As string, &paValue As any);
-   method AddString(&psName As string, &paValue As string);
-   method AddNumber(&psName As string, &paValue As number);
-   method AddBoolean(&psName As string, &paValue As boolean);
-   method AddNull(&psName As string);
    method AddArray(&psName As string, &paValue As array);
-   method AddJsonValue(&psName As string, &paValue As JsonValue);
-   method AddJsonNode(&psName As string, &paValue As JsonNode);
-   method AddJsonArray(&psName As string, &paValue As JsonArray);
-   method AddResponse(&psName As string, &paValue As Response);
+   method AddBoolean(&psName As string, &paValue As boolean);
+   method AddClass(&psName As string, &paValue As object);
    method AddCookie(&psName As string, &paValue As Cookie);
+   method AddDate(&psName As string, &paValue As date);
+   method AddDateTime(&psName As string, &paValue As datetime);
+   method AddFloat(&psName As string, &paValue As float);
+   method AddHash(&psName As string, &paValue As Hash);
+   method AddInteger(&psName As string, &paValue As integer);
+   method AddJsonArray(&psName As string, &paValue As JsonArray);
+   method AddJsonNode(&psName As string, &paValue As JsonNode);
+   method AddJsonObject(&psName As string, &paValue As JsonObject);
+   method AddJsonValue(&psName As string, &paValue As JsonValue);
+   method AddNull(&psName As string);
+   method AddNumber(&psName As string, &paValue As number);
+   method AddObject(&psName As string, &paValue As object);
+   method AddProperty(&psName As string, &paValue As any);
    method AddRecord(&psName As string, &paValue As Record);
+   method AddResponse(&psName As string, &paValue As Response);
+   method AddRequest(&psName As string, &paValue As Request);
    method AddRow(&psName As string, &paValue As Row);
    method AddRowSet(&psName As string, &paValue As Rowset);
-   method Has(&psName As string) Returns boolean;
+   method AddString(&psName As string, &paValue As string);
+   method AddTime(&psName As string, &paValue As time);
+   
+   method HasKey(&psName As string) Returns boolean;
    method ToString() Returns string;
+   
 end-class;
 
 method Object
    %This.Value = CreateJsonObject();
 end-method;
 
-method AddProperty
+
+method AddArray
    /+ &psName as String, +/
-   /+ &paValue as Any +/
-   
-   Local PSM_JSON:Node &oAny = create PSM_JSON:Node(&paValue);
-   
-   If &oAny.IsJsonObject() Then
-      %This.Value.AddJsonObject(&psName, &oAny.Value);
-      Return;
-   End-If;
-   
-   If &oAny.IsJsonArray() Then
-      %This.Value.AddJsonArray(&psName, &oAny.Value);
-      Return;
-   End-If;
-   
-   If &oAny.IsNull() Then
-      %This.AddNull(&psName);
-      Return;
-   End-If;
-   
-   %This.Value.AddProperty(&psName, &oAny.Value);
-   
-end-method;
-
-
-method AddString
-   /+ &psName as String, +/
-   /+ &paValue as String +/
-   %This.Value.AddProperty(&psName, EscapeJavascriptString(&paValue));
-end-method;
-
-
-method AddNumber
-   /+ &psName as String, +/
-   /+ &paValue as Number +/
-   %This.Value.AddProperty(&psName, &paValue);
+   /+ &paValue as Array of Any +/
+   Local JsonNode &jnJson = CreateJsonNode();
+   Local PSM_JSON:TYPE:Array &oType = create PSM_JSON:TYPE:Array(&paValue, &jnJson);
+   %This.AddJsonArray(&psName, &jnJson.GetJsonArray());
 end-method;
 
 
@@ -74,24 +57,12 @@ method AddBoolean
 end-method;
 
 
-method AddNull
-   /+ &psName as String +/
-   
-   %This.AddProperty(&psName, "");
-   Local JsonNode &currentNode = %This.Value.GetJsonNode(&psName);
-   
-   &currentNode.SetNull();
-   &currentNode.SetNodeName(&psName);
-   
-end-method;
-
-
-method AddResponse
+method AddClass
    /+ &psName as String, +/
-   /+ &paValue as Response +/
+   /+ &paValue as Object +/
    Local JsonNode &jnJson = CreateJsonNode();
-   Local PSM_JSON:TYPE:Response &oType = create PSM_JSON:TYPE:Response(&paValue, &jnJson);
-   %This.Value.AddJsonObject(&psName, &jnJson.GetJsonObject());
+   (create PSM_JSON:EVALUATOR:Class(&paValue, &jnJson)).CreateNode();
+   %This.AddJsonNode(&psName, &jnJson);
 end-method;
 
 
@@ -100,140 +71,44 @@ method AddCookie
    /+ &paValue as Cookie +/
    Local JsonNode &jnJson = CreateJsonNode();
    Local PSM_JSON:TYPE:Cookie &oType = create PSM_JSON:TYPE:Cookie(&paValue, &jnJson);
-   %This.Value.AddJsonObject(&psName, &jnJson.GetJsonObject());
+   %This.AddJsonObject(&psName, &jnJson.GetJsonObject());
 end-method;
 
 
-method AddRecord
+method AddDate
    /+ &psName as String, +/
-   /+ &paValue as Record +/
-   
+   /+ &paValue as Date +/
+   %This.Value.AddProperty(&psName, &paValue);
+end-method;
+
+
+method AddDateTime
+   /+ &psName as String, +/
+   /+ &paValue as DateTime +/
+   %This.Value.AddProperty(&psName, &paValue);
+end-method;
+
+
+method AddFloat
+   /+ &psName as String, +/
+   /+ &paValue as Float +/
+   %This.Value.AddProperty(&psName, &paValue);
+end-method;
+
+
+method AddHash
+   /+ &psName as String, +/
+   /+ &paValue as Hash +/
    Local JsonNode &jnJson = CreateJsonNode();
-   Local PSM_JSON:TYPE:Record &oType = create PSM_JSON:TYPE:Record(&paValue, &jnJson);
-   %This.Value.AddJsonObject(&psName, &jnJson.GetJsonObject());
-   
+   Local PSM_JSON:TYPE:Hash &oType = create PSM_JSON:TYPE:Hash(&paValue, &jnJson);
+   %This.AddJsonArray(&psName, &jnJson.GetJsonArray());
 end-method;
 
 
-method AddRow
+method AddInteger
    /+ &psName as String, +/
-   /+ &paValue as Row +/
-   
-   Local JsonNode &jnJson = CreateJsonNode();
-   Local PSM_JSON:TYPE:Row &oType = create PSM_JSON:TYPE:Row(&paValue, &jnJson);
-   %This.Value.AddJsonObject(&psName, &jnJson.GetJsonObject());
-   
-end-method;
-
-
-method AddRowSet
-   /+ &psName as String, +/
-   /+ &paValue as Rowset +/
-   
-   Local JsonNode &jnJson = CreateJsonNode();
-   Local PSM_JSON:TYPE:Rowset &oType = create PSM_JSON:TYPE:Rowset(&paValue, &jnJson);
-   %This.Value.AddJsonArray(&psName, &jnJson.GetJsonArray());
-   
-end-method;
-
-
-method AddJsonValue
-   /+ &psName as String, +/
-   /+ &paValue as JsonValue +/
-   
-   Evaluate &paValue.ValueType
-   When 6 /* String */
-      %This.AddString(&psName, &paValue.GetString());
-      Break;
-   When 5 /* Boolean */
-      %This.Value.AddProperty(&psName, &paValue.GetBoolean());
-      Break;
-   When 1 /* Integer */
-      %This.Value.AddProperty(&psName, &paValue.GetInteger());
-      Break;
-   When 3 /* Number, Float */
-      %This.Value.AddProperty(&psName, &paValue.GetValue());
-      Break;
-   When 7 /* Null */
-      %This.AddNull(&psName);
-      Break;
-   When 8 /* Date */
-      %This.Value.AddProperty(&psName, &paValue.GetDate());
-      Break;
-   When 9 /* Time */
-      %This.Value.AddProperty(&psName, &paValue.GetTime());
-      Break;
-   When 10 /*DateTime */
-      %This.Value.AddProperty(&psName, &paValue.GetDateTime());
-      Break;
-   When-Other
-      %This.Value.AddProperty(&psName, &paValue.GetValue());
-   End-Evaluate;
-   
-end-method;
-
-
-method AddJsonNode
-   /+ &psName as String, +/
-   /+ &paValue as JsonNode +/
-   
-   If &paValue.IsJsonObject() Then
-      %This.Value.AddJsonObject(&psName, &paValue.GetJsonObject());
-      Return;
-   End-If;
-   
-   If &paValue.IsJsonArray() Then
-      %This.Value.AddJsonArray(&psName, &paValue.GetJsonArray());
-      Return;
-   End-If;
-   
-   Evaluate &paValue.ValueType
-   When 6 /* String */
-      %This.AddString(&psName, &paValue.GetString());
-      Break;
-   When 5 /* Boolean */
-      %This.Value.AddProperty(&psName, &paValue.GetBoolean());
-      Break;
-   When 1 /* Integer */
-      %This.Value.AddProperty(&psName, &paValue.GetInteger());
-      Break;
-   When 3 /* Number, Float */
-      %This.Value.AddProperty(&psName, &paValue.GetNumber());
-      Break;
-   When 7 /* Null */
-      %This.AddNull(&psName);
-      Break;
-   When 8 /* Date */
-      %This.Value.AddProperty(&psName, &paValue.GetDate());
-      Break;
-   When 9 /* Time */
-      %This.Value.AddProperty(&psName, &paValue.GetTime());
-      Break;
-   When 10 /*DateTime */
-      %This.Value.AddProperty(&psName, &paValue.GetDateTime());
-      Break;
-   When-Other
-      rem %This.Value.AddProperty(&psName, &paValue.GetValue());
-      Return;
-   End-Evaluate;
-   
-   <*
-   If &paValue.IsJsonValue() Then
-      %This.AddJsonValue(&psName, &paValue.GetJsonValue());
-      Return;
-   End-If;
-   *>
-   
-   
-   
-   If &paValue.IsNull() Then
-      %This.AddNull(&psName);
-      Return;
-   End-If;
-   
-   /* Try to add via AddJsonValue */
-   rem %This.Value.AddProperty(&psName, &paValue.GetJsonValue());
-   
+   /+ &paValue as Integer +/
+   %This.Value.AddProperty(&psName, &paValue);
 end-method;
 
 
@@ -244,18 +119,190 @@ method AddJsonArray
 end-method;
 
 
-method AddArray
+method AddJsonNode
    /+ &psName as String, +/
-   /+ &paValue as Array of Any +/
+   /+ &paValue as JsonNode +/
+   
+   If &paValue.IsJsonObject() Then
+      %This.AddJsonObject(&psName, &paValue.GetJsonObject());
+      Return;
+   End-If;
+   
+   If &paValue.IsJsonArray() Then
+      %This.AddJsonArray(&psName, &paValue.GetJsonArray());
+      Return;
+   End-If;
+   
+   If &paValue.IsJsonValue() Then
+      %This.AddJsonValue(&psName, &paValue.GetJsonValue());
+      Return;
+   End-If;
+   
+   If &paValue.IsNull() Then
+      %This.AddNull(&psName);
+      Return;
+   End-If;
    
 end-method;
 
 
-method Has
+method AddJsonObject
+   /+ &psName as String, +/
+   /+ &paValue as JsonObject +/
+   %This.Value.AddJsonObject(&psName, &paValue);
+end-method;
+
+
+method AddJsonValue
+   /+ &psName as String, +/
+   /+ &paValue as JsonValue +/
+   
+   Evaluate &paValue.ValueType
+   When 6 /* String */
+      %This.AddString(&psName, &paValue.GetString());
+      Return;
+   When 7 /* Null */
+      %This.AddNull(&psName);
+      Return;
+      <*When-Other
+      %This.Value.AddProperty(&psName, &paValue.GetValue());
+      Return;*>
+   When 5 /* Boolean */
+      %This.AddBoolean(&psName, &paValue.GetBoolean());
+      Return;
+   When 1 /* Integer */
+      %This.AddInteger(&psName, &paValue.GetInteger());
+      Return;
+   When 3 /* Number, Float */
+      %This.AddNumber(&psName, &paValue.GetValue());
+      Return;
+   When 8 /* Date */
+      %This.AddDate(&psName, &paValue.GetDate());
+      Return;
+   When 9 /* Time */
+      %This.AddTime(&psName, &paValue.GetTime());
+      Return;
+   When 10 /*DateTime */
+      %This.AddDateTime(&psName, &paValue.GetDateTime());
+      Return;
+   End-Evaluate;
+   
+end-method;
+
+
+method AddNull
+   /+ &psName as String +/
+   
+   %This.Value.AddProperty(&psName, "");
+   Local JsonNode &currentNode = %This.Value.GetJsonNode(&psName);
+   
+   &currentNode.SetNull();
+   &currentNode.SetNodeName(&psName);
+   
+   <*
+   %This.Value.AddProperty(&psName, "");
+   Local JsonNode &currentNode = %This.Value.GetJsonNode(&psName);
+   
+   Local JsonValue &jvNull = CreateJsonValue();
+   &jvNull.SetNull();
+   
+   &currentNode.SetJsonValue(&jvNull);
+   &currentNode.SetNodeName(&psName);
+   *>
+end-method;
+
+
+method AddNumber
+   /+ &psName as String, +/
+   /+ &paValue as Number +/
+   %This.Value.AddProperty(&psName, &paValue);
+end-method;
+
+
+method AddObject
+   /+ &psName as String, +/
+   /+ &paValue as Object +/
+   Local JsonNode &jnJson = CreateJsonNode();
+   (create PSM_JSON:EVALUATOR:Object(&paValue, &jnJson)).CreateNode();
+   %This.AddJsonNode(&psName, &jnJson);
+end-method;
+
+
+method AddProperty
+   /+ &psName as String, +/
+   /+ &paValue as Any +/
+   
+   Local PSM_JSON:Node &oAny = create PSM_JSON:Node(&paValue);
+   %This.AddJsonNode(&psName, &oAny);
+   
+end-method;
+
+
+method AddRecord
+   /+ &psName as String, +/
+   /+ &paValue as Record +/
+   Local JsonNode &jnJson = CreateJsonNode();
+   Local PSM_JSON:TYPE:Record &oType = create PSM_JSON:TYPE:Record(&paValue, &jnJson);
+   %This.AddJsonObject(&psName, &jnJson.GetJsonObject());
+end-method;
+
+
+method AddResponse
+   /+ &psName as String, +/
+   /+ &paValue as Response +/
+   Local JsonNode &jnJson = CreateJsonNode();
+   Local PSM_JSON:TYPE:Response &oType = create PSM_JSON:TYPE:Response(&paValue, &jnJson);
+   %This.AddJsonObject(&psName, &jnJson.GetJsonObject());
+end-method;
+
+
+method AddRequest
+   /+ &psName as String, +/
+   /+ &paValue as Request +/
+   Local JsonNode &jnJson = CreateJsonNode();
+   Local PSM_JSON:TYPE:Request &oType = create PSM_JSON:TYPE:Request(&paValue, &jnJson);
+   %This.AddJsonObject(&psName, &jnJson.GetJsonObject());
+end-method;
+
+
+method AddRow
+   /+ &psName as String, +/
+   /+ &paValue as Row +/
+   Local JsonNode &jnJson = CreateJsonNode();
+   Local PSM_JSON:TYPE:Row &oType = create PSM_JSON:TYPE:Row(&paValue, &jnJson);
+   %This.AddJsonObject(&psName, &jnJson.GetJsonObject());
+end-method;
+
+
+method AddRowSet
+   /+ &psName as String, +/
+   /+ &paValue as Rowset +/
+   Local JsonNode &jnJson = CreateJsonNode();
+   Local PSM_JSON:TYPE:Rowset &oType = create PSM_JSON:TYPE:Rowset(&paValue, &jnJson);
+   %This.AddJsonArray(&psName, &jnJson.GetJsonArray());
+end-method;
+
+
+method AddString
+   /+ &psName as String, +/
+   /+ &paValue as String +/
+   %This.Value.AddProperty(&psName, EscapeJavascriptString(&paValue));
+end-method;
+
+
+method AddTime
+   /+ &psName as String, +/
+   /+ &paValue as Time +/
+   %This.Value.AddProperty(&psName, &paValue);
+end-method;
+
+
+method HasKey
    /+ &psName as String +/
    /+ Returns Boolean +/
    Return %This.Value.IsExist(&psName);
 end-method;
+
 
 method ToString
    /+ Returns String +/
