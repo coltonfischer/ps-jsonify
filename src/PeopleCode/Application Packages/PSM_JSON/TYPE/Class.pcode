@@ -36,7 +36,7 @@ method Class
    End-If;
    
    &mjoJson = create PSM_JSON:Object();
-   &mjoJson.Value = &joJson;
+   &mjoJson.FromJsonObject(&joJson);
    &moValue = &poValue;
    
    %This.Process();

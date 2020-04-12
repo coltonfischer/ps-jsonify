@@ -63,18 +63,13 @@ method CreateNodeForType
       &o = create PSM_JSON:TYPE:Exception(&moValue, &mjnJson);
       Return;
    When "NULL"
-      <*Local JsonValue &jvNull = CreateJsonValue();
-       &jvNull.SetNull();
-       &mjnJson.SetJsonValue(&jvNull);*>
       &mjnJson.SetNull();
       Return;
    When "JSONVALUE"
       &mjnJson.SetJsonValue(&moValue);
       Return;
    When-Other
-      Local JsonValue &jvUnsupportedObjectType = CreateJsonValue();
-      &jvUnsupportedObjectType.SetString(&psType);
-      &mjnJson.SetJsonValue(&jvUnsupportedObjectType);
+      &mjnJson.SetString(&psType);
    End-Evaluate;
    
 end-method;

@@ -1,50 +1,122 @@
 import PSM_JSON:EVALUATOR:Object;
 import PSM_JSON:EVALUATOR:Class;
+import PSM_JSON:TYPE:*;
 
 class Node extends JsonNode
-   method Node(&paValue As any);
-private
-   instance any &maValue;
-   method IsValue() Returns boolean;
+   method Node();
+   
+   method SetArray(&paValue As array);
+   method SetClass(&paValue As object);
+   method SetCookie(&paValue As Cookie);
+   method SetException(&paValue As Exception);
+   method SetHash(&paValue As Hash);
+   method SetObject(&paValue As object);
+   method SetRecord(&paValue As Record);
+   method SetResponse(&paValue As Response);
+   method SetRequest(&paValue As Request);
+   method SetRow(&paValue As Row);
+   method SetRowSet(&paValue As Rowset);
+   method SetValue(&paValue As any);
+   
 end-class;
 
 
 method Node
-   /+ &paValue as Any +/
    
    %Super = CreateJsonNode();
-   
-   &maValue = &paValue;
-   
-   If %This.IsValue() Then
-      
-      Local JsonValue &jvJson = CreateJsonValue();
-      
-      try
-         &jvJson.SetValue(&maValue);
-      catch Exception &e /* JsonValue.SetValue(nbr) fails */
-         &jvJson.SetNumber(&maValue);
-      end-try;
-      
-      %This.SetJsonValue(&jvJson);
-      Return;
-      
-   End-If;
-   
-   Local PSM_JSON:EVALUATOR:Object &oObjectEval = create PSM_JSON:EVALUATOR:Object(&maValue, %This);
-   &oObjectEval.CreateNode();
    
 end-method;
 
 
-method IsValue
-   /+ Returns Boolean +/
+method SetArray
+   /+ &paValue as Array of Any +/
+   Local PSM_JSON:TYPE:Array &oType = create PSM_JSON:TYPE:Array(&paValue, %This);
+end-method;
+
+
+method SetClass
+   /+ &paValue as Object +/
+   (create PSM_JSON:EVALUATOR:Class(&paValue, %This)).CreateNode();
+end-method;
+
+
+method SetCookie
+   /+ &paValue as Cookie +/
+   Local PSM_JSON:TYPE:Cookie &oType = create PSM_JSON:TYPE:Cookie(&paValue, %This);
+end-method;
+
+
+method SetException
+   /+ &paValue as Exception +/
+   Local PSM_JSON:TYPE:Exception &oType = create PSM_JSON:TYPE:Exception(&paValue, %This);
+end-method;
+
+
+method SetHash
+   /+ &paValue as Hash +/
+   Local PSM_JSON:TYPE:Hash &oType = create PSM_JSON:TYPE:Hash(&paValue, %This);
+end-method;
+
+
+method SetObject
+   /+ &paValue as Object +/
+   (create PSM_JSON:EVALUATOR:Object(&paValue, %This)).CreateNode();
+end-method;
+
+
+method SetRecord
+   /+ &paValue as Record +/
+   Local PSM_JSON:TYPE:Record &oType = create PSM_JSON:TYPE:Record(&paValue, %This);
+end-method;
+
+
+method SetResponse
+   /+ &paValue as Response +/
+   Local PSM_JSON:TYPE:Response &oType = create PSM_JSON:TYPE:Response(&paValue, %This);
+end-method;
+
+
+method SetRequest
+   /+ &paValue as Request +/
+   Local PSM_JSON:TYPE:Request &oType = create PSM_JSON:TYPE:Request(&paValue, %This);
+end-method;
+
+
+method SetRow
+   /+ &paValue as Row +/
+   Local PSM_JSON:TYPE:Row &oType = create PSM_JSON:TYPE:Row(&paValue, %This);
+end-method;
+
+
+method SetRowSet
+   /+ &paValue as Rowset +/
+   Local PSM_JSON:TYPE:Rowset &oType = create PSM_JSON:TYPE:Rowset(&paValue, %This);
+end-method;
+
+
+method SetValue
+   /+ &paValue as Any +/
+   
+   Local boolean &bIsValue = False;
    
    try
-      Return (&maValue = String(&maValue));
+      &bIsValue = (&paValue = String(&paValue));
    catch Exception &e
    end-try;
    
-   Return False;
+   If Not &bIsValue Then
+      %This.SetObject(&paValue);
+      Return;
+   End-If;
+   
+   Local JsonValue &jvJson = CreateJsonValue();
+   
+   try
+      &jvJson.SetValue(&paValue);
+   catch Exception &ex /* JsonValue.SetValue(nbr) fails */
+      &jvJson.SetNumber(&paValue);
+   end-try;
+   
+   %This.SetJsonValue(&jvJson);
    
 end-method;

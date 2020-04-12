@@ -23,7 +23,7 @@ method Response
    End-If;
    
    &mjoJson = create PSM_JSON:Object();
-   &mjoJson.Value = &joJson;
+   &mjoJson.FromJsonObject(&joJson);
    &moValue = &poValue;
    
    %This.Process();
@@ -53,10 +53,10 @@ method AddCookies
    For &i = 1 To &asCookies.Len
       Local PSM_JSON:Object &joJson = create PSM_JSON:Object();
       &joJson.AddCookie(&asCookies [&i], &moValue.GetCookie(&asCookies [&i]));
-      &jaJson.AddJsonObject(&joJson.Value);
+      &jaJson.AddJsonObject(&joJson.ToJsonObject());
    End-For;
    
-   &mjoJson.AddJsonArray("Cookies", &jaJson.Value);
+   &mjoJson.AddJsonArray("Cookies", &jaJson.ToJsonArray());
    
 end-method;
 
@@ -71,9 +71,9 @@ method AddHeaders
    For &i = 1 To &asHeaders.Len
       Local PSM_JSON:Object &joJson = create PSM_JSON:Object();
       &joJson.AddString(&asHeaders [&i], &moValue.GetHeader(&asHeaders [&i]));
-      &jaJson.AddJsonObject(&joJson.Value);
+      &jaJson.AddJsonObject(&joJson.ToJsonObject());
    End-For;
    
-   &mjoJson.AddJsonArray("Headers", &jaJson.Value);
+   &mjoJson.AddJsonArray("Headers", &jaJson.ToJsonArray());
    
 end-method;

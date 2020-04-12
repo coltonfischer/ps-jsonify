@@ -20,7 +20,7 @@ method Row
    End-If;
    
    &mjoJson = create PSM_JSON:Object();
-   &mjoJson.Value = &joJson;
+   &mjoJson.FromJsonObject(&joJson);
    &moValue = &poValue;
    
    %This.Process();
@@ -42,7 +42,7 @@ method Process
    For &i = 1 To &moValue.ChildCount
       
       Local Rowset &rsObject = &moValue.GetRowset(&i);
-      &mjoJson.AddRowSet(&rsObject.DBRecordName, &rsObject);
+      &mjoJson.AddRowset(&rsObject.DBRecordName, &rsObject);
       
    End-For;
    

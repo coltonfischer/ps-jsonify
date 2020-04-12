@@ -20,7 +20,7 @@ method Array
    End-If;
    
    &mjaJson = create PSM_JSON:Array();
-   &mjaJson.Value = &jaJson;
+   &mjaJson.FromJsonArray(&jaJson);
    &moValue = &poValue;
    
    %This.Process();
