@@ -3,4 +3,4 @@
 
 _This is still a work in progress..._
 
-View the [Documentaion Site](http://www.coltonfischer.com/ps-jsonify/) for deatils.
+View the [Documentation Site](http://www.coltonfischer.com/ps-jsonify/) for details.
