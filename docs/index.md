@@ -112,9 +112,9 @@ Local PTPP_COLLECTIONS:Shortcut &Cref;
 &Cref = create PTPP_COLLECTIONS:Shortcut(%Portal, "PT_CHANGE_PASSWORD_GBL");
 
 Local PSM_JSON:Node &jnJson = create PSM_JSON:Node(&Cref);
-%Response.Write(&jnJson.ToString());
+%Response.Write(&jnJson.ToJsonString());
 ```
-_Note: Not all object types are supported at this time.  `ToString()` will return the object type name as a String  if you use an unsupported type._
+_Note: Not all object types are supported at this time.  `ToJsonString()` will return the object type name as a String  if you use an unsupported type._
 
 ---
 
