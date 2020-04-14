@@ -1,5 +1,5 @@
 ---
-title: AddObject
+title: AddArray
 parent: JSON Object Methods
 grand_parent: JSON Object
 nav_order: 15
