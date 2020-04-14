@@ -1,3 +1,6 @@
 title: PS-Jsonify Docs
-description: Documentation site for PS-Jsonify library
-remote_theme: pmarsceill/just-the-docs
+description: Documentation site for PS-Jsonify
+# Use the official theme once the below PR is merged
+# https://github.com/pmarsceill/just-the-docs/pull/252
+# remote_theme: pmarsceill/just-the-docs
+remote_theme: coltonfischer/just-the-docs
