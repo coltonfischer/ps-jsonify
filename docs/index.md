@@ -9,7 +9,7 @@ permalink: /
 # Convert PeopleCode Objects to JSON
 {: .fs-9 }
 
-PS-Jsonify provides an easy to use API to build complex and dynamic JSON from PeopleCode objects.  PS-Jsonify is implemented via Application Class PeopleCode and requires no external dependencies.
+PS-Jsonify provides an easy to use API to build dynamic JSON from PeopleCode objects.  PS-Jsonify is implemented via Application Class PeopleCode and requires no external dependencies.
 {: .fs-6 .fw-300 }
 
 [Get started now](#getting-started){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 } [View it on GitHub](https://github.com/coltonfischer/ps-jsonify){: .btn .fs-5 .mb-4 .mb-md-0 }
@@ -28,93 +28,107 @@ Download and import the [PeopleSoft project](https://github.com/coltonfischer/ps
 
 ## How to Use
 
-The PS-Jsonify library offers three consumer Application Classes: `PSM_JSON:Object`, `PSM_JSON:Array`, and `PSM_JSON:Node`.  These three classes extend the functionality of the PeopleCode `JsonObject`, `JsonArray`, and `JsonNode` types respectively.
+The PS-Jsonify library offers three consumer App Classes: `PSM_JSON:Object`, `PSM_JSON:Array`, and `PSM_JSON:Node`.  These three classes can be used to build and parse JSON Objects, Arrays, and Nodes respectively.
 
 ### Building JSON Objects
 
-Use the `PSM_JSON:Object` Class to build dynamic JSON Objects.  
+Use the `PSM_JSON:Object` Class to build JSON Objects.
 
 ```
 Local PSM_JSON:Object &oJson = create PSM_JSON:Object();
 ```
 
-The various `AddXxx` methods allow you to add PeopleCode native object types to the JSON Object.
+The various `AddXxx` methods allow you to add PeopleCode object types to the JSON Object.
 
 ```
-/* AddRecord and AddRequest Examples */
-Local Record &rPsOptions = CreateRecord(Record.PSOPTIONS);
-&rPsOptions.SelectByKey();
+Local Rowset &rsOperDefn = CreateRowset(Record.PSOPRDEFN);
+&rsOperDefn.Fill("WHERE OPRID = 'PS'");
    
-&oJson.AddRecord("MyRecord", &rPsOptions);
-&oJson.AddRequest("MyRequest", %Request);
+&oJson.AddRowset("MyRowset", &rsOperDefn);
 ```
 
 Use the `AddProperty` method if you are unsure of the data or object type.
+
 ```
-/* AddProperty Example */
-Local Any &aAny = &oVar;
-&oJson.AddProperty("data", &aAny);
+Local any &aValue = CreateArrayAny("test", True, 6, Null);
+   
+If Int(Rand() * 10) > 5 Then
+   &aValue = Null;
+End-If;
+   
+&oJson.AddProperty("MyProperty", &aValue);
 ```
 
-Invoke the `ToJsonString` method when you are ready to get the JSON String output. 
+Invoke the `ToJsonString` method to get the JSON String output. 
 
 ```
 Local String &sOutput = &oJson.ToJsonString();
 ```
 
-You can always access the underlying `JsonObject` object by calling the `ToJsonObject` method.
-
-```
-Local JsonObject &joMyJsonObject = &oJson.ToJsonObject();
-```
+See the [JSON Object section](/ps-jsonify/JSON%20Object/) to view all of the available methods and properties.
 
 ### Building JSON Arrays
 
-Use the `PSM_JSON:Array` Class to build dynamic JSON Arrays
+Use the `PSM_JSON:Array` Class to build JSON Arrays.
 
 ```
-Local PSM_JSON:Array &oArray = create PSM_JSON:Array();
+Local PSM_JSON:Array &oJson = create PSM_JSON:Array();
 ```
 
-The various `AddXxx` methods allow you to add PeopleCode native object types to the JSON Array.
+The various `AddXxx` methods allow you to add PeopleCode object types to the JSON Array.
 
 ```
-/* Adding Array Elements Example */
-&oArray.AddString("Hello");
-&oArray.AddBoolean( True);
-&oArray.AddNumber(2);
+Local Record &rPsOptions = CreateRecord(Record.PSOPTIONS);
+&rPsOptions.SelectByKey();
+   
+&oJson.AddRecord(&rPsOptions);
 ```
 
 Use the `AddElement` method if you are unsure of the data or object type.
 ```
-/* AddElement Example */
-Local any &aAny = &oVar;
-&oArray.AddElement(&aAny);
+Local any &aValue = %Request;
+   
+If Int(Rand() * 10) > 5 Then
+   &aValue = %Response;
+End-If;
+   
+&oJson.AddElement(&aValue);
 ```
 
-Invoke the `ToJsonString` method when you are ready to get the JSON String output. 
+Invoke the `ToJsonString` method to get the JSON String output. 
 
 ```
-Local String &sOutput = &oArray.ToJsonString();
+Local String &sOutput = &oJson.ToJsonString();
 ```
 
-You can always access the underlying `JsonArray` object by calling the `ToJsonArray` method.
+See the [JSON Array section](/ps-jsonify/JSON%20Array/) to view all of the available methods and properties.
+
+### Building JSON Nodes
+
+Use the `PSM_JSON:Node` Class to build JSON Nodes.
 
 ```
-Local JsonArray &jaMyJsonArray = &oArray.ToJsonArray();
+Local PSM_JSON:Node &oJson = create PSM_JSON:Node();
 ```
-### Any to JSON String
 
-Convert an `Any` object type to a JSON String with the `PSM_JSON:Node` Class.
+The various `SetXxx` methods allow you convert PeopleCode object types to a JSON Node.
 
 ```
-Local PTPP_COLLECTIONS:Shortcut &Cref;
-&Cref = create PTPP_COLLECTIONS:Shortcut(%Portal, "PT_CHANGE_PASSWORD_GBL");
-
-Local PSM_JSON:Node &jnJson = create PSM_JSON:Node(&Cref);
-%Response.Write(&jnJson.ToJsonString());
+Local PTPP_COLLECTIONS:Shortcut &oCref;
+&oCref = create PTPP_COLLECTIONS:Shortcut(%Portal, "PT_CHANGE_PASSWORD_GBL");
+   
+&oJson.SetClass(&oCref);
 ```
-_Note: Not all object types are supported at this time.  `ToJsonString()` will return the object type name as a String  if you use an unsupported type._
+
+Invoke the `ToJsonString` method to get the JSON String output. 
+
+```
+Local String &sOutput = &oJson.ToJsonString();
+```
+
+See the [JSON Node section](/ps-jsonify/JSON%20Node/) to view all of the available methods and properties.
+
+_Note: Not all PeopleCode object types are supported. `ToJsonString` will return the object type name as a String if you use an unsupported type._
 
 ---
 
