@@ -10,13 +10,18 @@ class Node extends JsonNode
    method SetCookie(&paValue As Cookie);
    method SetException(&paValue As Exception);
    method SetHash(&paValue As Hash);
+   method SetJsonNode(&paValue As JsonNode); /* @todo docs */
+   method SetJsonValue(&paValue As JsonValue); /* @todo docs */
    method SetObject(&paValue As object);
    method SetRecord(&paValue As Record);
    method SetResponse(&paValue As Response);
    method SetRequest(&paValue As Request);
    method SetRow(&paValue As Row);
-   method SetRowSet(&paValue As Rowset);
-   method SetValue(&paValue As any);
+   method SetRowset(&paValue As Rowset);
+   method SetString(&paValue As string);
+   method SetValue(&paValue As any); /* @todo rename to Set() ? */
+   
+   method ToJsonString() Returns string;
    
 end-class;
 
@@ -30,7 +35,7 @@ end-method;
 
 method SetArray
    /+ &paValue as Array of Any +/
-   Local PSM_JSON:TYPE:Array &oType = create PSM_JSON:TYPE:Array(&paValue, %This);
+   (create PSM_JSON:TYPE:Array(&paValue, %This)).Process();
 end-method;
 
 
@@ -42,19 +47,32 @@ end-method;
 
 method SetCookie
    /+ &paValue as Cookie +/
-   Local PSM_JSON:TYPE:Cookie &oType = create PSM_JSON:TYPE:Cookie(&paValue, %This);
+   (create PSM_JSON:TYPE:Cookie(&paValue, %This)).Process();
 end-method;
 
 
 method SetException
    /+ &paValue as Exception +/
-   Local PSM_JSON:TYPE:Exception &oType = create PSM_JSON:TYPE:Exception(&paValue, %This);
+   (create PSM_JSON:TYPE:Exception(&paValue, %This)).Process();
 end-method;
 
 
 method SetHash
    /+ &paValue as Hash +/
-   Local PSM_JSON:TYPE:Hash &oType = create PSM_JSON:TYPE:Hash(&paValue, %This);
+   (create PSM_JSON:TYPE:Hash(&paValue, %This)).Process();
+end-method;
+
+
+method SetJsonNode
+   /+ &paValue as JsonNode +/
+   (create PSM_JSON:TYPE:JsonNode(&paValue, %This)).Process();
+end-method;
+
+
+method SetJsonValue
+   /+ &paValue as JsonValue +/
+   /+ Extends/implements JsonNode.SetJsonValue +/
+   (create PSM_JSON:TYPE:JsonValue(&paValue, %This)).Process();
 end-method;
 
 
@@ -66,57 +84,48 @@ end-method;
 
 method SetRecord
    /+ &paValue as Record +/
-   Local PSM_JSON:TYPE:Record &oType = create PSM_JSON:TYPE:Record(&paValue, %This);
+   (create PSM_JSON:TYPE:Record(&paValue, %This)).Process();
 end-method;
 
 
 method SetResponse
    /+ &paValue as Response +/
-   Local PSM_JSON:TYPE:Response &oType = create PSM_JSON:TYPE:Response(&paValue, %This);
+   (create PSM_JSON:TYPE:Response(&paValue, %This)).Process();
 end-method;
 
 
 method SetRequest
    /+ &paValue as Request +/
-   Local PSM_JSON:TYPE:Request &oType = create PSM_JSON:TYPE:Request(&paValue, %This);
+   (create PSM_JSON:TYPE:Request(&paValue, %This)).Process();
 end-method;
 
 
 method SetRow
    /+ &paValue as Row +/
-   Local PSM_JSON:TYPE:Row &oType = create PSM_JSON:TYPE:Row(&paValue, %This);
+   (create PSM_JSON:TYPE:Row(&paValue, %This)).Process();
 end-method;
 
 
-method SetRowSet
+method SetRowset
    /+ &paValue as Rowset +/
-   Local PSM_JSON:TYPE:Rowset &oType = create PSM_JSON:TYPE:Rowset(&paValue, %This);
+   (create PSM_JSON:TYPE:Rowset(&paValue, %This)).Process();
+end-method;
+
+
+method SetString
+   /+ &paValue as String +/
+   /+ Extends/implements JsonNode.SetString +/
+   %Super.SetString(EscapeJavascriptString(&paValue));
 end-method;
 
 
 method SetValue
    /+ &paValue as Any +/
-   
-   Local boolean &bIsValue = False;
-   
-   try
-      &bIsValue = (&paValue = String(&paValue));
-   catch Exception &e
-   end-try;
-   
-   If Not &bIsValue Then
-      %This.SetObject(&paValue);
-      Return;
-   End-If;
-   
-   Local JsonValue &jvJson = CreateJsonValue();
-   
-   try
-      &jvJson.SetValue(&paValue);
-   catch Exception &ex /* JsonValue.SetValue(nbr) fails */
-      &jvJson.SetNumber(&paValue);
-   end-try;
-   
-   %This.SetJsonValue(&jvJson);
-   
+   (create PSM_JSON:TYPE:Any(&paValue, %This)).Process();
+end-method;
+
+
+method ToJsonString
+   /+ Returns String +/
+   Return %This.ToString();
 end-method;

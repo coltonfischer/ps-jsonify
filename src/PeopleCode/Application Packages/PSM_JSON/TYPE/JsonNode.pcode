@@ -1,0 +1,42 @@
+import PSM_JSON:Node;
+
+class JsonNode
+   method JsonNode(&paValue As JsonNode, &pjnJson As PSM_JSON:Node);
+   method Process();
+private
+   instance JsonNode &maValue;
+   instance PSM_JSON:Node &mjnJson;
+end-class;
+
+
+method JsonNode
+   /+ &paValue as JsonNode, +/
+   /+ &pjnJson as PSM_JSON:Node +/
+   &maValue = &paValue;
+   &mjnJson = &pjnJson;
+end-method;
+
+
+method Process
+   
+   If &maValue.IsJsonObject() Then
+      &mjnJson.SetJsonObject(&maValue.GetJsonObject());
+      Return;
+   End-If;
+   
+   If &maValue.IsJsonArray() Then
+      &mjnJson.SetJsonArray(&maValue.GetJsonArray());
+      Return;
+   End-If;
+   
+   If &maValue.IsJsonValue() Then
+      &mjnJson.SetJsonValue(&maValue.GetJsonValue());
+      Return;
+   End-If;
+   
+   If &maValue.IsNull() Then
+      &mjnJson.SetNull();
+      Return;
+   End-If;
+   
+end-method;

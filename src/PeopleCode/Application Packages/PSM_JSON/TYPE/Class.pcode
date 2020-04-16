@@ -3,14 +3,15 @@ import %metadata:PeopleCodeProgram:PeopleCodeProgram_Manager;
 import %metadata:PeopleCodeProgram:PeopleCodeProgram;
 import PSM_JSON:Object;
 import PSM_JSON:EVALUATOR:Object;
+import PSM_JSON:Node;
 
 class Class
-   method Class(&poValue As object, &pjnJson As JsonNode);
+   method Class(&poValue As object, &pjnJson As PSM_JSON:Node);
+   method Process();
 private
    instance object &moValue;
    instance PSM_JSON:Object &mjoJson;
-   instance JsonNode &mjnJson;
-   method Process();
+   instance PSM_JSON:Node &mjnJson;
    
    method Introspect(&psClassPath As string);
    method GetPeopleCodeProgram(&pasProgramKeys As array of string) Returns %metadata:PeopleCodeProgram:PeopleCodeProgram;
@@ -24,22 +25,17 @@ Declare Function FUNCStripComments PeopleCode FUNCLIB_PTIA.PTIA_UPG_PATH FieldFo
 
 method Class
    /+ &poValue as Object, +/
-   /+ &pjnJson as JsonNode +/
+   /+ &pjnJson as PSM_JSON:Node +/
    
+   &moValue = &poValue;
    &mjnJson = &pjnJson;
    
-   Local JsonObject &joJson = &mjnJson.GetJsonObject();
-   
-   If &joJson = Null Then
-      &joJson = CreateJsonObject();
-      &mjnJson.SetJsonObject(&joJson);
+   If Not &mjnJson.IsJsonObject() Then
+      &mjnJson.SetJsonObject(CreateJsonObject());
    End-If;
    
    &mjoJson = create PSM_JSON:Object();
-   &mjoJson.FromJsonObject(&joJson);
-   &moValue = &poValue;
-   
-   %This.Process();
+   &mjoJson.FromJsonObject(&mjnJson.GetJsonObject());
    
 end-method;
 

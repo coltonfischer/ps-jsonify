@@ -1,14 +1,14 @@
 import PSM_JSON:TYPE:*;
 import PSM_JSON:EVALUATOR:Class;
+import PSM_JSON:Node;
 
 class Object
-   method Object(&poValue As object, &pjnJson As JsonNode);
+   method Object(&poValue As object, &pjnJson As PSM_JSON:Node);
    method CreateNode();
    method CreateNodeForType(&psType As string);
 private
    instance object &moValue;
-   instance JsonNode &mjnJson;
-   instance Hash &mhMappings;
+   instance PSM_JSON:Node &mjnJson;
    method IsAppClass(&psType As string) Returns boolean;
    method IsJavaClass(&psType As string) Returns boolean; /* @todo */
 end-class;
@@ -16,7 +16,7 @@ end-class;
 
 method Object
    /+ &poValue as Object, +/
-   /+ &pjnJson as JsonNode +/
+   /+ &pjnJson as PSM_JSON:Node +/
    &moValue = &poValue;
    &mjnJson = &pjnJson;
 end-method;
@@ -34,39 +34,54 @@ method CreateNodeForType
    
    If %This.IsAppClass(&psType) Then
       
-      Local PSM_JSON:EVALUATOR:Class &oClassEval = create PSM_JSON:EVALUATOR:Class(&moValue, &mjnJson);
-      &oClassEval.CreateNode();
+      (create PSM_JSON:EVALUATOR:Class(&moValue, &mjnJson)).CreateNode();
       
       Return;
       
    End-If;
    
-   Local any &o;
-   
    Evaluate Upper(&psType)
    When "ARRAY"
-      &o = create PSM_JSON:TYPE:Array(&moValue, &mjnJson);
+      (create PSM_JSON:TYPE:Array(&moValue, &mjnJson)).Process();
       Return;
    When "RECORD"
-      &o = create PSM_JSON:TYPE:Record(&moValue, &mjnJson);
+      &mjnJson.SetRecord(&moValue);
       Return;
-   When "REQUEST"
-      &o = create PSM_JSON:TYPE:Request(&moValue, &mjnJson);
+   When "ROWSET"
+      &mjnJson.SetRowset(&moValue);
       Return;
-   When "RESPONSE"
-      &o = create PSM_JSON:TYPE:Response(&moValue, &mjnJson);
+   When "ROW"
+      &mjnJson.SetRow(&moValue);
       Return;
    When "HASH"
-      &o = create PSM_JSON:TYPE:Hash(&moValue, &mjnJson);
-      Return;
-   When "EXCEPTION"
-      &o = create PSM_JSON:TYPE:Exception(&moValue, &mjnJson);
+      &mjnJson.SetHash(&moValue);
       Return;
    When "NULL"
       &mjnJson.SetNull();
       Return;
+   When "EXCEPTION"
+      &mjnJson.SetException(&moValue);
+      Return;
+   When "REQUEST"
+      &mjnJson.SetRequest(&moValue);
+      Return;
+   When "RESPONSE"
+      &mjnJson.SetResponse(&moValue);
+      Return;
+   When "COOKIE"
+      &mjnJson.SetCookie(&moValue);
+      Return;
    When "JSONVALUE"
       &mjnJson.SetJsonValue(&moValue);
+      Return;
+   When "JSONOBJECT"
+      &mjnJson.SetJsonObject(&moValue);
+      Return;
+   When "JSONARRAY"
+      &mjnJson.SetJsonArray(&moValue);
+      Return;
+   When "JSONNODE"
+      &mjnJson.SetJsonNode(&moValue);
       Return;
    When-Other
       &mjnJson.SetString(&psType);

@@ -1,9 +1,10 @@
 import PSM_JSON:Array;
+import PSM_JSON:Node;
 
 class Array
    method Array(&poValue As any, &pjnJson As JsonNode);
-private
    method Process();
+private
    instance any &moValue;
    instance PSM_JSON:Array &mjaJson;
 end-class;
@@ -12,18 +13,14 @@ method Array
    /+ &poValue as Any, +/
    /+ &pjnJson as JsonNode +/
    
-   Local JsonArray &jaJson = &pjnJson.GetJsonArray();
+   &moValue = &poValue;
    
-   If &jaJson = Null Then
-      &jaJson = CreateJsonArray();
-      &pjnJson.SetJsonArray(&jaJson);
+   If Not &pjnJson.IsJsonArray() Then
+      &pjnJson.SetJsonArray(CreateJsonArray());
    End-If;
    
    &mjaJson = create PSM_JSON:Array();
-   &mjaJson.FromJsonArray(&jaJson);
-   &moValue = &poValue;
-   
-   %This.Process();
+   &mjaJson.FromJsonArray(&pjnJson.GetJsonArray());
    
 end-method;
 

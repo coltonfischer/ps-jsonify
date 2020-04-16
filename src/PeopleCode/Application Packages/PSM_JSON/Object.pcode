@@ -49,7 +49,7 @@ class Object
    
    /* Informer Methods */
    method HasKey(&psName As string) Returns boolean;
-   method IsNull(&psName As string) Returns boolean;
+   method IsNull(&psName As string) Returns boolean; /* @todo revisit this */
    property integer Size get;
    
 private
@@ -197,32 +197,15 @@ method AddJsonValue
    /+ &psName as String, +/
    /+ &paValue as JsonValue +/
    
-   Evaluate &paValue.ValueType
-   When 6 /* String */
-      %This.AddString(&psName, &paValue.GetString());
-      Return;
-   When 7 /* Null */
+   &moJsonNode = create PSM_JSON:Node();
+   &moJsonNode.SetJsonValue(&paValue);
+   
+   If (&paValue.ValueType = 7) Then
       %This.AddNull(&psName);
       Return;
-   When 5 /* Boolean */
-      %This.AddBoolean(&psName, &paValue.GetBoolean());
-      Return;
-   When 1 /* Integer */
-      %This.AddInteger(&psName, &paValue.GetInteger());
-      Return;
-   When 3 /* Number, Float */
-      %This.AddNumber(&psName, &paValue.GetValue());
-      Return;
-   When 8 /* Date */
-      %This.AddDate(&psName, &paValue.GetDate());
-      Return;
-   When 9 /* Time */
-      %This.AddTime(&psName, &paValue.GetTime());
-      Return;
-   When 10 /*DateTime */
-      %This.AddDateTime(&psName, &paValue.GetDateTime());
-      Return;
-   End-Evaluate;
+   End-If;
+   
+   &mjoJsonObject.AddProperty(&psName, &paValue.GetValue());
    
 end-method;
 
@@ -304,7 +287,7 @@ method AddRowset
    /+ &psName as String, +/
    /+ &paValue as Rowset +/
    &moJsonNode = create PSM_JSON:Node();
-   &moJsonNode.SetRowSet(&paValue);
+   &moJsonNode.SetRowset(&paValue);
    %This.AddJsonNode(&psName, &moJsonNode);
 end-method;
 
@@ -312,7 +295,9 @@ end-method;
 method AddString
    /+ &psName as String, +/
    /+ &paValue as String +/
-   &mjoJsonObject.AddProperty(&psName, EscapeJavascriptString(&paValue));
+   &moJsonNode = create PSM_JSON:Node();
+   &moJsonNode.SetString(&paValue);
+   &mjoJsonObject.AddProperty(&psName, &moJsonNode.GetString());
 end-method;
 
 

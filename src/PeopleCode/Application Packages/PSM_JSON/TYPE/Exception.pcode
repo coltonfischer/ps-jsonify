@@ -2,8 +2,8 @@ import PSM_JSON:Object;
 
 class Exception
    method Exception(&poValue As Exception, &pjnJson As JsonNode);
-private
    method Process();
+private
    method GetSeverityDescr() Returns string;
    instance Exception &moValue;
    instance PSM_JSON:Object &mjoJson;
@@ -13,18 +13,14 @@ method Exception
    /+ &poValue as Exception, +/
    /+ &pjnJson as JsonNode +/
    
-   Local JsonObject &joJson = &pjnJson.GetJsonObject();
+   &moValue = &poValue;
    
-   If &joJson = Null Then
-      &joJson = CreateJsonObject();
-      &pjnJson.SetJsonObject(&joJson);
+   If Not &pjnJson.IsJsonObject() Then
+      &pjnJson.SetJsonObject(CreateJsonObject());
    End-If;
    
    &mjoJson = create PSM_JSON:Object();
-   &mjoJson.FromJsonObject(&joJson);
-   &moValue = &poValue;
-   
-   %This.Process();
+   &mjoJson.FromJsonObject(&pjnJson.GetJsonObject());
    
 end-method;
 

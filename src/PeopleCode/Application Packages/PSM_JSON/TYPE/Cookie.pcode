@@ -2,8 +2,8 @@ import PSM_JSON:Object;
 
 class Cookie
    method Cookie(&poValue As Cookie, &pjnJson As JsonNode);
-private
    method Process();
+private
    instance Cookie &moValue;
    instance PSM_JSON:Object &mjoJson;
 end-class;
@@ -12,18 +12,14 @@ method Cookie
    /+ &poValue as Cookie, +/
    /+ &pjnJson as JsonNode +/
    
-   Local JsonObject &joJson = &pjnJson.GetJsonObject();
+   &moValue = &poValue;
    
-   If &joJson = Null Then
-      &joJson = CreateJsonObject();
-      &pjnJson.SetJsonObject(&joJson);
+   If Not &pjnJson.IsJsonObject() Then
+      &pjnJson.SetJsonObject(CreateJsonObject());
    End-If;
    
    &mjoJson = create PSM_JSON:Object();
-   &mjoJson.FromJsonObject(&joJson);
-   &moValue = &poValue;
-   
-   %This.Process();
+   &mjoJson.FromJsonObject(&pjnJson.GetJsonObject());
    
 end-method;
 
@@ -36,6 +32,5 @@ method Process
    &mjoJson.AddNumber("MaxAge", &moValue.MaxAge);
    &mjoJson.AddString("Path", &moValue.Path);
    &mjoJson.AddBoolean("Secure", &moValue.Secure);
-   
    
 end-method;

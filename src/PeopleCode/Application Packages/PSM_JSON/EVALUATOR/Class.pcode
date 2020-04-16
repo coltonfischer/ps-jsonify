@@ -1,17 +1,18 @@
-import PSM_JSON:TYPE:*;
+import PSM_JSON:TYPE:Class;
+import PSM_JSON:Node;
 
 class Class
-   method Class(&poValue As object, &pjnJson As JsonNode);
+   method Class(&poValue As object, &pjnJson As PSM_JSON:Node);
    method CreateNode();
 private
    instance object &moValue;
-   instance JsonNode &mjnJson;
+   instance PSM_JSON:Node &mjnJson;
 end-class;
 
 
 method Class
    /+ &poValue as Object, +/
-   /+ &pjnJson as JsonNode +/
+   /+ &pjnJson as PSM_JSON:Node +/
    &moValue = &poValue;
    &mjnJson = &pjnJson;
 end-method;
@@ -21,12 +22,11 @@ method CreateNode
    
    Local any &jnJson;
    
-   /* @todo add an example of converting a delivered class to JSON */
    Evaluate Upper(String(&moValue))
       rem When "ADD_EXAMPLE:Here"
-      Return (create PSM_JSON:TYPE:Example(&moValue, &mjnJson));
+      Return (create PSM_JSON:TYPE:Example(&moValue, &mjnJson)).Process();
    When-Other
-      &jnJson = create PSM_JSON:TYPE:Class(&moValue, &mjnJson);
+      (create PSM_JSON:TYPE:Class(&moValue, &mjnJson)).Process();
       Return;
    End-Evaluate;
    

@@ -1,0 +1,49 @@
+import PSM_JSON:Node;
+
+class JsonValue
+   method JsonValue(&paValue As JsonValue, &pjnJson As PSM_JSON:Node);
+   method Process();
+private
+   instance JsonValue &maValue;
+   instance PSM_JSON:Node &mjnJson;
+end-class;
+
+
+method JsonValue
+   /+ &paValue as JsonValue, +/
+   /+ &pjnJson as PSM_JSON:Node +/
+   &maValue = &paValue;
+   &mjnJson = &pjnJson;
+end-method;
+
+
+method Process
+   
+   Evaluate &maValue.ValueType
+   When 6 /* String */
+      &mjnJson.SetString(&maValue.GetString());
+      Return;
+   When 7 /* Null */
+      &mjnJson.SetNull();
+      Return;
+   When 5 /* Boolean */
+      &mjnJson.SetBoolean(&maValue.GetBoolean());
+      Return;
+   When 1 /* Integer */
+      &mjnJson.SetInteger(&maValue.GetInteger());
+      Return;
+   When 3 /* Number, Float */
+      &mjnJson.SetNumber(&maValue.GetNumber());
+      Return;
+   When 8 /* Date */
+      &mjnJson.SetDate(&maValue.GetDate());
+      Return;
+   When 9 /* Time */
+      &mjnJson.SetTime(&maValue.GetTime());
+      Return;
+   When 10 /*DateTime */
+      &mjnJson.SetDateTime(&maValue.GetDateTime());
+      Return;
+   End-Evaluate;
+   
+end-method;

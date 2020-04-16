@@ -1,0 +1,47 @@
+import PSM_JSON:Node;
+
+class Any
+   method Any(&poValue As any, &pjnJson As PSM_JSON:Node);
+   method Process();
+private
+   instance any &moValue;
+   instance JsonValue &mjvJson;
+   instance PSM_JSON:Node &mjnJson;
+end-class;
+
+method Any
+   /+ &poValue as Any, +/
+   /+ &pjnJson as PSM_JSON:Node +/
+   
+   &moValue = &poValue;
+   
+   &mjnJson = &pjnJson;
+   
+end-method;
+
+
+method Process
+   
+   Local boolean &bIsValue = False;
+   
+   try
+      &bIsValue = (&moValue = String(&moValue));
+   catch Exception &e
+   end-try;
+   
+   If Not &bIsValue Then
+      &mjnJson.SetObject(&moValue);
+      Return;
+   End-If;
+   
+   Local JsonValue &jvJson = CreateJsonValue();
+   
+   try
+      &jvJson.SetValue(&moValue);
+   catch Exception &ex /* JsonValue.SetValue(nbr) fails */
+      &jvJson.SetNumber(&moValue);
+   end-try;
+   
+   &mjnJson.SetJsonValue(&jvJson);
+   
+end-method;

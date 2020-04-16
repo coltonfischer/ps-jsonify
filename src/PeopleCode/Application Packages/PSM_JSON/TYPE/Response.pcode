@@ -3,8 +3,8 @@ import PSM_JSON:Array;
 
 class Response
    method Response(&poValue As Response, &pjnJson As JsonNode);
-private
    method Process();
+private
    method AddCookies();
    method AddHeaders();
    instance Response &moValue;
@@ -15,18 +15,14 @@ method Response
    /+ &poValue as Response, +/
    /+ &pjnJson as JsonNode +/
    
-   Local JsonObject &joJson = &pjnJson.GetJsonObject();
+   &moValue = &poValue;
    
-   If &joJson = Null Then
-      &joJson = CreateJsonObject();
-      &pjnJson.SetJsonObject(&joJson);
+   If Not &pjnJson.IsJsonObject() Then
+      &pjnJson.SetJsonObject(CreateJsonObject());
    End-If;
    
    &mjoJson = create PSM_JSON:Object();
-   &mjoJson.FromJsonObject(&joJson);
-   &moValue = &poValue;
-   
-   %This.Process();
+   &mjoJson.FromJsonObject(&pjnJson.GetJsonObject());
    
 end-method;
 

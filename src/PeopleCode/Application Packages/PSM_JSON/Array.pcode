@@ -39,14 +39,14 @@ class Array
    
    /* Parser Methods */
    method GetElement(&piIndex As integer) Returns any;
-   method GetJsonNode(&piIndex As integer) Returns JsonNode; /* @todo Not working as expected */
+   method GetJsonNode(&piIndex As integer) Returns JsonNode; /* @todo docs */
    
    /* Converter Methods */
    method ToJsonArray() Returns JsonArray;
    method ToJsonString() Returns string;
    
    /* Informer Methods */
-   method IsNull(&piIndex As integer) Returns boolean; /* @todo Not working as expected */
+   method IsNull(&piIndex As integer) Returns boolean;
    property integer Length get;
    
 private
@@ -78,7 +78,6 @@ method FromJsonString
    %This.FromJsonArray(&jpParser.GetRootObject().GetJsonArray(""));
    
 end-method;
-
 
 
 method AddArray
@@ -192,34 +191,15 @@ end-method;
 method AddJsonValue
    /+ &paValue as JsonValue +/
    
-   Evaluate &paValue.ValueType
-   When 6 /* String */
-      %This.AddString(&paValue.GetString());
-      Return;
-   When 5 /* Boolean */
-      %This.AddBoolean(&paValue.GetBoolean());
-      Return;
-   When 1 /* Integer */
-      %This.AddInteger(&paValue.GetInteger());
-      Return;
-   When 3 /* Number, Float */
-      %This.AddNumber(&paValue.GetValue());
-      Return;
-   When 7 /* Null */
+   &moJsonNode = create PSM_JSON:Node();
+   &moJsonNode.SetJsonValue(&paValue);
+   
+   If (&paValue.ValueType = 7) Then
       %This.AddNull();
       Return;
-   When 8 /* Date */
-      %This.AddDate(&paValue.GetDate());
-      Return;
-   When 9 /* Time */
-      %This.AddTime(&paValue.GetTime());
-      Return;
-   When 10 /*DateTime */
-      %This.AddDateTime(&paValue.GetDateTime());
-      Return;
-   When-Other
-      %This.AddNull();
-   End-Evaluate;
+   End-If;
+   
+   &mjaJsonArray.AddElement(&paValue.GetValue());
    
 end-method;
 
@@ -278,14 +258,16 @@ end-method;
 method AddRowset
    /+ &paValue as Rowset +/
    &moJsonNode = create PSM_JSON:Node();
-   &moJsonNode.SetRowSet(&paValue);
+   &moJsonNode.SetRowset(&paValue);
    %This.AddJsonNode(&moJsonNode);
 end-method;
 
 
 method AddString
    /+ &paValue as String +/
-   &mjaJsonArray.AddElement(EscapeJavascriptString(&paValue));
+   &moJsonNode = create PSM_JSON:Node();
+   &moJsonNode.SetString(&paValue);
+   &mjaJsonArray.AddElement(&moJsonNode.GetString());
 end-method;
 
 
@@ -305,7 +287,9 @@ end-method;
 method GetJsonNode
    /+ &piIndex as Integer +/
    /+ Returns JsonNode +/
-   Return &mjaJsonArray.GetJsonNode(&piIndex);
+   Local PSM_JSON:Node &oNode = create PSM_JSON:Node();
+   &oNode.SetValue(&mjaJsonArray.GetElement(&piIndex));
+   Return &oNode;
 end-method;
 
 
@@ -335,7 +319,8 @@ end-method;
 method IsNull
    /+ &piIndex as Integer +/
    /+ Returns Boolean +/
-   Return &mjaJsonArray.IsNull(&piIndex);
+   rem Return &mjaJsonArray.IsNull(&piIndex); /* Not working in 8.56.12 */
+   Return (&mjaJsonArray.GetType(&piIndex) = 7);
 end-method;
 
 
