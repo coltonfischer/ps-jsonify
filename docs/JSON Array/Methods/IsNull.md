@@ -13,9 +13,6 @@ nav_order: 165
 
 Use this method to check whether the JSON Array element at the index location is null.
 
-Unexpected Results
-{: .label .label-red }
-
 ### [](#header-3)Parameters
 
 | Name           | Description                                                                    |
@@ -34,5 +31,5 @@ Local PSM_JSON:Array &oArray = create PSM_JSON:Array();
    
 &oArray.AddString("test");
    
-Local boolean &bIsNull = &oArray.IsNull(1); /* Expected: False - Actual: True */
+Local boolean &bIsNull = &oArray.IsNull(1);
 ```
