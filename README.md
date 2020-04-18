@@ -49,7 +49,7 @@ Invoke the `ToJsonString` method to get the JSON String output.
 Local String &sOutput = &oJson.ToJsonString();
 ```
 
-See the [JSON Object section](/ps-jsonify/JSON%20Object/) to view all of the available methods and properties.
+See the [JSON Object section](http://www.coltonfischer.com/ps-jsonify/JSON%20Object/) to view all of the available methods and properties.
 
 ### Building JSON Arrays
 
@@ -85,7 +85,7 @@ Invoke the `ToJsonString` method to get the JSON String output.
 Local String &sOutput = &oJson.ToJsonString();
 ```
 
-See the [JSON Array section](/ps-jsonify/JSON%20Array/) to view all of the available methods and properties.
+See the [JSON Array section](http://www.coltonfischer.com/ps-jsonify/JSON%20Array/) to view all of the available methods and properties.
 
 ### Building JSON Nodes
 
@@ -110,6 +110,6 @@ Invoke the `ToJsonString` method to get the JSON String output.
 Local String &sOutput = &oJson.ToJsonString();
 ```
 
-See the [JSON Node section](/ps-jsonify/JSON%20Node/) to view all of the available methods and properties.
+See the [JSON Node section](http://www.coltonfischer.com/ps-jsonify/JSON%20Node/) to view all of the available methods and properties.
 
 _Note: Not all PeopleCode object types are supported. `ToJsonString` will return the object type name as a String if you use an unsupported type._
