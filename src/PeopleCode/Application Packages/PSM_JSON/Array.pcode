@@ -39,7 +39,7 @@ class Array
    
    /* Parser Methods */
    method GetElement(&piIndex As integer) Returns any;
-   method GetJsonNode(&piIndex As integer) Returns JsonNode; /* @todo docs */
+   method GetJsonNode(&piIndex As integer) Returns JsonNode;
    
    /* Converter Methods */
    method ToJsonArray() Returns JsonArray;
@@ -320,7 +320,8 @@ method IsNull
    /+ &piIndex as Integer +/
    /+ Returns Boolean +/
    rem Return &mjaJsonArray.IsNull(&piIndex); /* Not working in 8.56.12 */
-   Return (&mjaJsonArray.GetType(&piIndex) = 7);
+   Return (%This.Length < &piIndex Or
+      &mjaJsonArray.GetType(&piIndex) = 7);
 end-method;
 
 

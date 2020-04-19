@@ -18,8 +18,8 @@ class Node extends JsonNode
    method SetRequest(&paValue As Request);
    method SetRow(&paValue As Row);
    method SetRowset(&paValue As Rowset);
-   method SetString(&paValue As string);
-   method SetValue(&paValue As any); /* @todo rename to Set() ? */
+   method SetString(&paValue As string); /* @todo docs */
+   method SetValue(&paValue As any);
    
    method ToJsonString() Returns string;
    

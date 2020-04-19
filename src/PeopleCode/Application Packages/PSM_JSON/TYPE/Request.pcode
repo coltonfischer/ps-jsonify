@@ -33,7 +33,7 @@ method Process
    &mjoJson.AddString("CharSet", &moValue.CharSet);
    &mjoJson.AddString("ContentBody", &moValue.GetContentBody());
    &mjoJson.AddString("ContentURI", &moValue.ContentURI);
-   /* @todo add more properties */
+   /* ... add more properties */
    
    %This.AddCookies();
    %This.AddHeaders();

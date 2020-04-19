@@ -30,7 +30,7 @@ end-method;
 method Process
    
    &mjoJson.AddProperty("CharSet", &moValue.CharSet);
-   /* @todo more properties */
+   /* ... add more properties */
    
    %This.AddCookies();
    %This.AddHeaders();

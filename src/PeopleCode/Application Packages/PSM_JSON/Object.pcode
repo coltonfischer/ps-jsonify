@@ -49,7 +49,7 @@ class Object
    
    /* Informer Methods */
    method HasKey(&psName As string) Returns boolean;
-   method IsNull(&psName As string) Returns boolean; /* @todo revisit this */
+   method IsNull(&psName As string) Returns boolean;
    property integer Size get;
    
 private
@@ -364,7 +364,9 @@ end-method;
 method IsNull
    /+ &psName as String +/
    /+ Returns Boolean +/
-   Return &mjoJsonObject.IsNullProperty(&psName);
+   rem Return &mjoJsonObject.IsNullProperty(&psName); /* Not working in 8.56.12 */
+   Return ( Not %This.HasKey(&psName) Or
+      %This.GetJsonNode(&psName).ValueType = 7);
 end-method;
 
 

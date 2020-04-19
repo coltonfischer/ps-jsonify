@@ -84,6 +84,7 @@ method CreateNodeForType
       &mjnJson.SetJsonNode(&moValue);
       Return;
    When-Other
+      /* Consider creating a generic object serializer by using Java reflection on the PeopleSoft.PeopleCode.Xxx Class */
       &mjnJson.SetString(&psType);
    End-Evaluate;
    
