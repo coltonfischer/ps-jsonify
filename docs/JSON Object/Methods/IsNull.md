@@ -13,9 +13,6 @@ nav_order: 165
 
 Use this method to check whether a property is null or not.
 
-Unexpected Results
-{: .label .label-red }
-
 ### [](#header-3)Parameters
 
 | Name           | Description                                                                    |
@@ -34,5 +31,5 @@ Local PSM_JSON:Object &oObject = create PSM_JSON:Object();
    
 &oObject.AddString("test", "val");
    
-Local boolean &bIsNull = &oObject.IsNull("test"); /* Expected: False - Actual: True */
+Local boolean &bIsNull = &oObject.IsNull("test");
 ```
