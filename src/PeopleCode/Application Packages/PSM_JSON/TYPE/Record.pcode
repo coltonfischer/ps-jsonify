@@ -31,7 +31,12 @@ method Process
    For &i = 1 To &moValue.FieldCount
       
       Local Field &fField = &moValue.GetField(&i);
-      &mjoJson.AddProperty(&fField.Name, &fField.Value); /* &fField.IsInBuf ? */
+      
+      If Not &fField.IsInBuf Then
+         Continue;
+      End-If;
+      
+      &mjoJson.AddProperty(&fField.Name, &fField.Value);
       
    End-For;
    
