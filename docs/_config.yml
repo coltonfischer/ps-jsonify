@@ -2,7 +2,4 @@ title: PS-Jsonify Docs
 description: Documentation site for PS-Jsonify
 baseurl: "/ps-jsonify" # the subpath of your site, e.g. /blog
 url: "https://coltonfischer.com" # the base hostname & protocol for your site, e.g. http://example.com
-# Use the official theme once the below PR is merged
-# https://github.com/pmarsceill/just-the-docs/pull/252
-# remote_theme: pmarsceill/just-the-docs
-remote_theme: coltonfischer/just-the-docs
+remote_theme: pmarsceill/just-the-docs
